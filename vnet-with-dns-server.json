@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "Description": "The name of the Virtual Network to Create"
+      },
+      "defaultValue": "Vnet"
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "Description": "The name of the subnet created in the new VNET"
+      },
+      "defaultValue": "Subnet"
+    },
+    "DNSServerAddress": {
+      "type": "array",
+      "metadata": {
+        "Description": "The DNS address(es) of the DNS Server(s) used by the VNET"
+      }
+    }
+  },
+  "resources": [
+  ]
+}
+
