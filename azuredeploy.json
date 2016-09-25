@@ -198,7 +198,7 @@
       "metadata": {
         "description": "The location of resources such as templates and DSC modules that the script is dependent"
       },
-      "defaultValue": "https://raw.githubusercontent.com/yusaito001/DC/master/"
+      "defaultValue": "https://raw.githubusercontent.com/yusaito001/FS/master/"
     }
   },
   "variables": {
