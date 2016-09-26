@@ -435,66 +435,7 @@
         }
       },
       "resources": [
-        {
-          "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(parameters('adPFSVMName'),'/CreateADForest')]",
-          "apiVersion": "2015-05-01-preview",
-          "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', parameters('adPFSVMName'))]"
-          ],
-          "properties": {
-            "publisher": "Microsoft.Powershell",
-            "type": "DSC",
-            "typeHandlerVersion": "2.19",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "ModulesUrl": "[variables('adPFSModulesURL')]",
-              "ConfigurationFunction": "[variables('adPFSConfigurationFunction')]",
-              "Properties": {
-                "DomainName": "[parameters('domainName')]",
-                "AdminCreds": {
-                  "UserName": "[parameters('adminUserName')]",
-                  "Password": "PrivateSettingsRef:AdminPassword"
-                }
-              }
-            },
-            "protectedSettings": {
-              "Items": {
-                "AdminPassword": "[parameters('adminPassword')]"
-              }
-            }
-          }
-        }
       ]
-    },
-    {
-      "name": "UpdateVNetDNS1",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('adPFSVMName'),'/extensions/CreateADForest')]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('vnetwithDNSTemplateUri')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "virtualNetworkName": {
-            "value": "[parameters('existingVirtualNetworkName')]"
-          },
-          "subnetName": {
-            "value": "[parameters('SubnetName')]"
-          },
-          "DNSServerAddress": {
-            "value": [
-              "[parameters('adPFSNicIPAddress')]"
-            ]
-          }
-        }
-      }
     },
     {
       "name": "UpdateBFSNIC",
@@ -602,67 +543,6 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('adBFSNicName'))]"
             }
           ]
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('adBFSVMName'),'/CreateBFS')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('adBFSVMName'))]",
-        "Microsoft.Resources/deployments/UpdateBFSNIC"
-      ],
-      "properties": {
-        "publisher": "Microsoft.Powershell",
-        "type": "DSC",
-        "typeHandlerVersion": "2.19",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "ModulesUrl": "[variables('adBFSModulesURL')]",
-          "ConfigurationFunction": "[variables('adBFSConfigurationFunction')]",
-          "Properties": {
-            "DomainName": "[parameters('domainName')]",
-            "AdminCreds": {
-              "UserName": "[parameters('adminUserName')]",
-              "Password": "PrivateSettingsRef:AdminPassword"
-            }
-          }
-        },
-        "protectedSettings": {
-          "Items": {
-            "AdminPassword": "[parameters('adminPassword')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "UpdateVNetDNS2",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/',parameters('adBFSVMName'),'/extensions/CreateBFS')]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('vnetwithDNSTemplateUri')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "virtualNetworkName": {
-            "value": "[parameters('existingVirtualNetworkName')]"
-          },
-          "subnetName": {
-            "value": "[parameters('SubnetName')]"
-          },
-          "DNSServerAddress": {
-            "value": [
-              "[parameters('adPFSNicIPAddress')]",
-              "[parameters('adBFSNicIPAddress')]"
-            ]
-          }
         }
       }
     }
