@@ -194,7 +194,7 @@
     "adBEAddressPoolID": "[concat(variables('adlbID'),'/backendAddressPools/',variables('adLBBE'))]",
     "adPFSDataDisk": "ADPFSDataDisk",
     "adBFSDataDisk": "ADBFSDataDisk",
-    "adDataDiskSize": 1000,
+    "adDataDiskSize": 1023,
     "nicTemplateUri": "[concat(parameters('assetLocation'),'nic.json')]",
     "vnetwithDNSTemplateUri": "[concat(parameters('assetLocation'),'vnet-with-dns-server.json')]",
     "virtualNetworkName": "Vnet",
