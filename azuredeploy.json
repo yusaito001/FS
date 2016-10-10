@@ -2,22 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "newStorageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the new storage account created to store the VMs disks"
-      }
-    },
-    "storageAccountType": {
-      "type": "string",
-      "allowedValues": [
-        "Premium_LRS"
-      ],
-      "metadata": {
-        "description": "The type of the Storage Account created"
-      },
-      "defaultValue": "Premium_LRS"
-    },
     "existingVirtualNetworkName": {
       "type": "string",
       "metadata": {
@@ -38,38 +22,17 @@
       },
       "defaultValue": "Subnet"
     },
-    "adPFSNicName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the NIC attached to the new PFS"
-      },
-      "defaultValue": "adPFSNic"
-    },
     "adPFSNicIPAddress": {
       "type": "string",
       "metadata": {
         "description": "The IP address of the new AD PFS"
       }
     },
-    "adBFSNicName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the NIC attached to the new BFS"
-      },
-      "defaultValue": "adBFSNic"
-    },
     "adBFSNicIPAddress": {
       "type": "string",
       "metadata": {
         "description": "The IP address of the new AD BFS"
       }
-    },
-    "publicIPAddressName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the public IP address used by the Load Balancer"
-      },
-      "defaultValue": "adpublicIP2"
     },
     "publicIPAddressType": {
       "type": "string",
@@ -86,15 +49,13 @@
       "type": "string",
       "metadata": {
         "description": "The computer name of the PFS"
-      },
-      "defaultValue": "adPFS"
+      }
     },
     "adBFSVMName": {
       "type": "string",
       "metadata": {
         "description": "The computer name of the BFS"
-      },
-      "defaultValue": "adBFS"
+      }
     },
     "adminUsername": {
       "type": "string",
@@ -140,19 +101,6 @@
         "description": "Image SKU"
       }
     },
-    "adAvailabilitySetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the availability set that the AD VM is created in"
-      },
-      "defaultValue": "adAvailabiltySet2"
-    },
-    "dnsPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The DNS prefix for the public IP address used by the Load Balancer"
-      }
-    },
     "PFSRDPPort": {
       "type": "int",
       "metadata": {
@@ -165,7 +113,7 @@
       "metadata": {
         "description": "The public RDP port for the BFS VM"
       },
-      "defaultValue": 13389
+      "defaultValue": 3389
     },
     "assetLocation": {
       "type": "string",
@@ -176,116 +124,70 @@
     }
   },
   "variables": {
-    "adLBFE": "LBFE",
-    "adLBBE": "LBBE",
     "adPFSRDPNAT": "adPFSRDP",
     "adBFSRDPNAT": "adBFSRDP",
     "vnetID": "[resourceId(parameters('existingVirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('existingVirtualNetworkName'))]",
     "subnetRef": "[concat(variables('VnetID'),'/subnets/',parameters('SubnetName'))]",
-    "adPFSNicId": "[resourceId('Microsoft.Network/networkInterfaces',parameters('adPFSNicName'))]",
+    "adPFSNicName": "[concat(parameters('adPFSVMName'), 'NIC')]",
+    "adBFSNicName": "[concat(parameters('adBFSVMName'), 'NIC')]",
+    "PublicIPName1": "[concat(parameters('adPFSVMName'), 'PublicNIC')]",
+    "PublicIPName2": "[concat(parameters('adBFSVMName'), 'PublicNIC')]",
+    "publicIPAddressName1": "[concat(parameters('adPFSVMName'), 'PublicIP')]",
+    "publicIPAddressName2": "[concat(parameters('adBFSVMName'), 'PublicIP')]",
+    "adPFSNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('adPFSNicName'))]",
     "adPFSIPConfigID": "[concat(variables('adPFSNicId'),'/ipConfigurations/ipconfig1')]",
-    "adBFSNicId": "[resourceId('Microsoft.Network/networkInterfaces',parameters('adBFSNicName'))]",
+    "adBFSNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('adBFSNicName'))]",
     "adBFSIPConfigID": "[concat(variables('adBFSNicId'),'/ipConfigurations/ipconfig1')]",
-    "adLBName": "adLoadBalancer2",
-    "adlbID": "[resourceId('Microsoft.Network/loadBalancers',variables('adLBName'))]",
-    "adlbFEConfigID": "[concat(variables('adlbID'),'/frontendIPConfigurations/',variables('adLBFE'))]",
-    "adPFSRDPNATRuleID": "[concat(variables('adlbID'),'/inboundNatRules/',variables('adPFSRDPNAT'))]",
-    "adBFSRDPNATRuleID": "[concat(variables('adlbID'),'/inboundNatRules/',variables('adBFSRDPNAT'))]",
-    "adBEAddressPoolID": "[concat(variables('adlbID'),'/backendAddressPools/',variables('adLBBE'))]",
     "adPFSDataDisk": "ADPFSDataDisk",
     "adBFSDataDisk": "ADBFSDataDisk",
     "adDataDiskSize": 1023,
     "nicTemplateUri": "[concat(parameters('assetLocation'),'nic.json')]",
     "vnetwithDNSTemplateUri": "[concat(parameters('assetLocation'),'vnet-with-dns-server.json')]",
     "virtualNetworkName": "Vnet",
+    "uniqueStringArray": [
+      "[concat(uniqueString(resourceGroup().id, '0'), '0')]",
+      "[concat(uniqueString(resourceGroup().id, '1'), '0')]"
+    ]
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('newStorageAccountName')]",
-      "apiVersion": "2015-05-01-preview",
+      "name": "[variables('uniqueStringArray')[copyIndex()]]",
+      "apiVersion": "2016-01-01",
       "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "storageLoop",
+        "count": "[length(variables('uniqueStringArray'))]"
+      },
+      "sku": {
+        "name": "Premium_LRS"
+      },
+      "kind": "Storage",
       "properties": {
-        "accountType": "[parameters('storageAccountType')]"
       }
     },
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[parameters('publicIPAddressName')]",
+      "name": "[variables('publicIPAddressName1')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "publicIPAllocationMethod": "[parameters('publicIPAddressType')]",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('dnsPrefix')]"
-        }
       }
     },
     {
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[parameters('adAvailabilitySetName')]",
       "apiVersion": "2015-05-01-preview",
-      "location": "[resourceGroup().location]"
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "name": "[variables('adLBName')]",
-      "type": "Microsoft.Network/loadBalancers",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressName2')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
-      ],
       "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "[variables('adLBFE')]",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
-              }
-            }
-          }
-        ],
-        "backendAddressPools": [
-          {
-            "name": "[variables('adLBBE')]"
-          }
-        ],
-        "inboundNatRules": [
-          {
-            "name": "[variables('adPFSRDPNAT')]",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[variables('adlbFEConfigID')]"
-              },
-              "protocol": "tcp",
-              "frontendPort": "[parameters('PFSRDPPort')]",
-              "backendPort": 3389,
-              "enableFloatingIP": false
-            }
-          },
-          {
-            "name": "[variables('adBFSRDPNAT')]",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[variables('adlbFEConfigID')]"
-              },
-              "protocol": "tcp",
-              "frontendPort": "[parameters('BFSRDPPort')]",
-              "backendPort": 3389,
-              "enableFloatingIP": false
-            }
-          }
-        ]
+        "publicIPAllocationMethod": "[parameters('publicIPAddressType')]",
       }
     },
     {
-      "name": "[parameters('adPFSNicName')]",
+      "name": "[variables('adPFSNicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/',variables('adLBName'))]"
-      ],
       "apiVersion": "2015-05-01-preview",
       "properties": {
         "ipConfigurations": [
@@ -294,31 +196,21 @@
             "properties": {
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('adPFSNicIPAddress')]",
+              "publicIPAddress": {
+                "id": "resourceId('Microsoft.Network/networkInterfaces', variables('PublicIPName1')"
+              },
               "subnet": {
                 "id": "[variables('SubnetRef')]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[variables('adBEAddressPoolID')]"
-                }
-              ],
-              "loadBalancerInboundNatRules": [
-                {
-                  "id": "[variables('adPFSRDPNATRuleID')]"
-                }
-              ]
+              }
             }
           }
         ]
       }
     },
     {
-      "name": "[parameters('adBFSNicName')]",
+      "name": "[variables('adBFSNicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/',variables('adLBName'))]"
-      ],
       "apiVersion": "2015-05-01-preview",
       "properties": {
         "ipConfigurations": [
@@ -327,19 +219,12 @@
             "properties": {
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('adBFSNicIPAddress')]",
+              "publicIPAddress": {
+                "id": "resourceId('Microsoft.Network/networkInterfaces', variables('PublicIPName2')"
+              },
               "subnet": {
                 "id": "[variables('SubnetRef')]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[variables('adBEAddressPoolID')]"
-                }
-              ],
-              "loadBalancerInboundNatRules": [
-                {
-                  "id": "[variables('adBFSRDPNATRuleID')]"
-                }
-              ]
+              }
             }
           }
         ]
@@ -351,17 +236,12 @@
       "name": "[parameters('adPFSVMName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces',parameters('adPFSNicName'))]",
-        "[resourceId('Microsoft.Compute/availabilitySets', parameters('adAvailabilitySetName'))]",
-        "[resourceId('Microsoft.Network/loadBalancers',variables('adLBName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts',variables('uniqueStringArray')[0])]",
+        "[resourceId('Microsoft.Network/networkInterfaces',variables('adPFSNicName'))]",
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('adVMSize')]"
-        },
-        "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('adAvailabilitySetName'))]"
         },
         "osProfile": {
           "computerName": "[parameters('adPFSVMName')]",
@@ -378,7 +258,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/vhds0/','osdisk.vhd')]"
+              "uri": "[concat('http://',variables('uniqueStringArray')[0],'.blob.core.windows.net/vhds0/','osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -386,7 +266,7 @@
           "dataDisks": [
             {
               "vhd": {
-                "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/vhds0/', variables('adPFSDataDisk'),'-1.vhd')]"
+                "uri": "[concat('http://',variables('uniqueStringArray')[0],'.blob.core.windows.net/vhds0/', variables('adPFSDataDisk'),'-1.vhd')]"
               },
               "name": "[concat(parameters('adPFSVMName'),'-data-disk1')]",
               "caching": "None",
@@ -399,7 +279,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('adPFSNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('adPFSNicName'))]"
             }
           ]
         }
@@ -413,17 +293,12 @@
       "name": "[parameters('adBFSVMName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces',parameters('adBFSNicName'))]",
-        "[resourceId('Microsoft.Compute/availabilitySets', parameters('adAvailabilitySetName'))]",
-        "[resourceId('Microsoft.Network/loadBalancers',variables('adLBName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts',variables('uniqueStringArray')[1])]",
+        "[resourceId('Microsoft.Network/networkInterfaces',variables('adBFSNicName'))]",
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('adVMSize')]"
-        },
-        "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('adAvailabilitySetName'))]"
         },
         "osProfile": {
           "computerName": "[parameters('adBFSVMName')]",
@@ -440,7 +315,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/vhds1/','osdisk.vhd')]"
+              "uri": "[concat('http://',variables('uniqueStringArray')[1],'.blob.core.windows.net/vhds1/','osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -448,7 +323,7 @@
           "dataDisks": [
             {
               "vhd": {
-                "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/vhds1/', variables('adBFSDataDisk'),'-1.vhd')]"
+                "uri": "[concat('http://',variables('uniqueStringArray')[1],'.blob.core.windows.net/vhds1/', variables('adBFSDataDisk'),'-1.vhd')]"
               },
               "name": "[concat(parameters('adBFSVMName'),'-data-disk1')]",
               "caching": "None",
@@ -461,7 +336,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('adBFSNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('adBFSNicName'))]"
             }
           ]
         }
