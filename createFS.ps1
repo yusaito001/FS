@@ -1,0 +1,1 @@
+New-AzureRmResourceGroupDeployment -ResourceGroupName $args[0] -TemplateFile $args[1]

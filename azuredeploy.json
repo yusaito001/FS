@@ -145,8 +145,8 @@
     "vnetwithDNSTemplateUri": "[concat(parameters('assetLocation'),'vnet-with-dns-server.json')]",
     "virtualNetworkName": "Vnet",
     "uniqueStringArray": [
-      "[concat(uniqueString(resourceGroup().id, '0'), '0')]",
-      "[concat(uniqueString(resourceGroup().id, '1'), '0')]"
+      "[concat(uniqueString(resourceGroup().id, '2'), '0')]",
+      "[concat(uniqueString(resourceGroup().id, '3'), '0')]"
     ]
   },
   "resources": [
