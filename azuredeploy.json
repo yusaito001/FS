@@ -198,7 +198,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('adPFSNicIPAddress')]",
               "publicIPAddress": {
-                "id": "resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName1'))"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName1'))]"
               },
               "subnet": {
                 "id": "[variables('SubnetRef')]"
@@ -224,7 +224,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('adBFSNicIPAddress')]",
               "publicIPAddress": {
-                "id": "resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName2'))"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName2'))]"
               },
               "subnet": {
                 "id": "[variables('SubnetRef')]"
