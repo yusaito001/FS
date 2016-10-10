@@ -130,8 +130,6 @@
     "subnetRef": "[concat(variables('VnetID'),'/subnets/',parameters('SubnetName'))]",
     "adPFSNicName": "[concat(parameters('adPFSVMName'), 'NIC')]",
     "adBFSNicName": "[concat(parameters('adBFSVMName'), 'NIC')]",
-    "PublicIPName1": "[concat(parameters('adPFSVMName'), 'PublicNIC')]",
-    "PublicIPName2": "[concat(parameters('adBFSVMName'), 'PublicNIC')]",
     "publicIPAddressName1": "[concat(parameters('adPFSVMName'), 'PublicIP')]",
     "publicIPAddressName2": "[concat(parameters('adBFSVMName'), 'PublicIP')]",
     "adPFSNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('adPFSNicName'))]",
@@ -197,7 +195,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('adPFSNicIPAddress')]",
               "publicIPAddress": {
-                "id": "resourceId('Microsoft.Network/publicIPAddresses', variables('PublicIPName1')"
+                "id": "resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName1')"
               },
               "subnet": {
                 "id": "[variables('SubnetRef')]"
@@ -220,7 +218,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('adBFSNicIPAddress')]",
               "publicIPAddress": {
-                "id": "resourceId('Microsoft.Network/networkInterfaces', variables('PublicIPName2')"
+                "id": "resourceId('Microsoft.Network/networkInterfaces', variables('publicIPAddressName2')"
               },
               "subnet": {
                 "id": "[variables('SubnetRef')]"
