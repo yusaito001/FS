@@ -130,8 +130,8 @@
     "subnetRef": "[concat(variables('VnetID'),'/subnets/',parameters('SubnetName'))]",
     "adPFSNicName": "[concat(parameters('adPFSVMName'), 'NIC')]",
     "adBFSNicName": "[concat(parameters('adBFSVMName'), 'NIC')]",
-    "publicIPAddressName1": "[concat(parameters('adPFSVMName'), 'PublicIP')]",
-    "publicIPAddressName2": "[concat(parameters('adBFSVMName'), 'PublicIP')]",
+    "publicIPAddressName1": "[concat(parameters('adPFSVMName'), 'PIP')]",
+    "publicIPAddressName2": "[concat(parameters('adBFSVMName'), 'PIP')]",
     "adPFSNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('adPFSNicName'))]",
     "adPFSIPConfigID": "[concat(variables('adPFSNicId'),'/ipConfigurations/ipconfig1')]",
     "adBFSNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('adBFSNicName'))]",
@@ -187,6 +187,9 @@
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-05-01-preview",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName1'))]"
+      ],
       "properties": {
         "ipConfigurations": [
           {
