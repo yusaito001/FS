@@ -218,7 +218,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('adBFSNicIPAddress')]",
               "publicIPAddress": {
-                "id": "resourceId('Microsoft.Network/networkInterfaces', variables('publicIPAddressName2')"
+                "id": "resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName2')"
               },
               "subnet": {
                 "id": "[variables('SubnetRef')]"
