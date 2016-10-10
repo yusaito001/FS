@@ -213,6 +213,10 @@
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-05-01-preview",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName2'))]"
+      ],
+
       "properties": {
         "ipConfigurations": [
           {
