@@ -240,7 +240,7 @@
       "name": "[parameters('adPFSVMName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts',variables('uniqueStringArray')[0])]",
+        "[resourceId('Microsoft.Storage/storageAccounts',variables('uniqueStringArray')[2])]",
         "[resourceId('Microsoft.Network/networkInterfaces',variables('adPFSNicName'))]",
       ],
       "properties": {
@@ -297,7 +297,7 @@
       "name": "[parameters('adBFSVMName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts',variables('uniqueStringArray')[1])]",
+        "[resourceId('Microsoft.Storage/storageAccounts',variables('uniqueStringArray')[3])]",
         "[resourceId('Microsoft.Network/networkInterfaces',variables('adBFSNicName'))]",
       ],
       "properties": {
